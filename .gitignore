@@ -218,3 +218,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# AVER: dane, nagrania, embeddingi i wagi modeli
+data/
+*.mp4
+*.wav
+*.npy
+*.pt
+*.pth
+checkpoints/
+models/
+.env

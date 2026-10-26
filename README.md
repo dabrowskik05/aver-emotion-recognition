@@ -1,2 +1,3 @@
-# aver-emotion-recognition
-Audio-Visual Emotion Recognition from voice and facial dynamics in video
+# AVER: Audio-Visual Emotion Recognition
+
+Rozpoznawanie emocji jednocześnie z głosu i mimiki twarzy w nagraniach wideo.

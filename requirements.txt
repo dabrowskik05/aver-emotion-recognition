@@ -1,0 +1,6 @@
+numpy
+torch
+transformers
+opencv-python
+mediapipe
+scikit-learn
