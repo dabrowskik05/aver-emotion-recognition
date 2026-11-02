@@ -1,6 +1,8 @@
 numpy
 torch
+torchvision
 transformers
-opencv-python
-mediapipe
+# OpenCV 5 has no CascadeClassifier
+opencv-python==4.14.0.94
+imageio-ffmpeg
 scikit-learn
