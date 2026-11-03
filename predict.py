@@ -27,14 +27,14 @@ def predict(video_path):
     return EMOTIONS[predict_proba(video_path)["fusion"].argmax()]
 
 
-def plot_proba(probas, out_path):
+def plot_proba(probas, out_path, figsize=(11, 4.5)):
     """Grouped bar chart of emotion probabilities (audio, video, fusion), saved as PNG."""
     import matplotlib.pyplot as plt
     import numpy as np
 
     x = np.arange(len(EMOTIONS))
     width = 0.27
-    fig, ax = plt.subplots(figsize=(11, 4.5))
+    fig, ax = plt.subplots(figsize=figsize)
     for i, ((name, p), color) in enumerate(zip(probas.items(), ["#2a78d6", "#eb6834", "#1baf7a"])):
         pos = x + (i - 1) * width
         ax.bar(pos, p, width - 0.03, color=color, label=name)
@@ -47,7 +47,8 @@ def plot_proba(probas, out_path):
     ax.set_ylim(0, 1.05)
     ax.set_ylabel("probability")
     ax.spines[["top", "right"]].set_visible(False)
-    ax.legend(ncols=3, edgecolor="none", framealpha=1)  # white box hides the grid line
+    # above the axes, so it never covers a tall bar
+    ax.legend(ncols=3, edgecolor="none", framealpha=1, loc="lower center", bbox_to_anchor=(0.5, 1.0))
     fig.tight_layout()
     fig.savefig(out_path, dpi=200)
 
