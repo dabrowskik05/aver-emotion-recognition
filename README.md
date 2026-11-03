@@ -33,4 +33,4 @@ python train.py
 python predict.py sciezka/do/nagrania.mp4 --plot
 ```
 
-`train.py` wypisuje accuracy oraz macro precision, recall i F1 dla audio, wideo i fuzji. `--plot` w `predict.py` zapisuje wykresy prawdopodobieństw z audio, wideo i fuzji jako `<nazwa nagrania>.png`.
+`train.py` wypisuje accuracy oraz macro precision, recall i F1 dla audio, wideo i fuzji, a pod spodem dla każdej emocji procent poprawnie rozpoznanych nagrań i to, z czym fuzja myli ją najczęściej. `--plot` w `predict.py` zapisuje wykres prawdopodobieństw z audio, wideo i fuzji jako `<nazwa nagrania>.png`.

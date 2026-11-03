@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -49,6 +49,19 @@ def main():
         print(f"{name:<8} | {accuracy_score(y[test], pred):>8.1%} | {p:>9.1%} | {r:>6.1%} | {f1:>6.1%}")
     print(f"{'random':<8} | {1 / len(EMOTIONS):>8.1%} |")
     print("Precision, recall and F1 are macro averages over the 8 emotions.")
+
+    # per emotion: % of its test recordings each model got right, hardest for fusion first
+    cms = {m: confusion_matrix(y[test], preds[m], labels=range(len(EMOTIONS))) for m in ["audio", "video", "fusion"]}
+    correct = {m: cm.diagonal() / cm.sum(1) for m, cm in cms.items()}
+    header = f"{'Emotion':<9} | {'audio':>5} | {'video':>5} | {'fusion':>6} | Fusion most often mistakes it for"
+    print(f"\n{header}\n{'-' * len(header)}")
+    for e in np.argsort(correct["fusion"]):
+        row = cms["fusion"][e].copy()
+        row[e] = 0
+        wrong = row.argmax()
+        mistake = f"{EMOTIONS[wrong]} ({row[wrong] / cms['fusion'][e].sum():.0%})" if row.any() else "-"
+        print(f"{EMOTIONS[e]:<9} | {correct['audio'][e]:>5.0%} | {correct['video'][e]:>5.0%} | "
+              f"{correct['fusion'][e]:>6.0%} | {mistake}")
     print(f"\nSaved models to {CHECKPOINTS_DIR}/")
 
 

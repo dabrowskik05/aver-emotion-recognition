@@ -28,19 +28,26 @@ def predict(video_path):
 
 
 def plot_proba(probas, out_path):
-    """Three bar charts (audio, video, fusion) of emotion probabilities, saved as PNG."""
+    """Grouped bar chart of emotion probabilities (audio, video, fusion), saved as PNG."""
     import matplotlib.pyplot as plt
+    import numpy as np
 
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4), sharey=True)
-    for ax, (name, p), color in zip(axes, probas.items(), ["#2a78d6", "#eb6834", "#1baf7a"]):
-        ax.bar(EMOTIONS, p, color=color)
-        ax.set_xlabel(name, fontsize=13)
-        ax.set_ylim(0, 1)
-        ax.tick_params(axis="x", rotation=45)
-        ax.spines[["top", "right"]].set_visible(False)
-        top = p.argmax()
-        ax.text(top, p[top] + 0.02, f"{p[top]:.0%}", ha="center")
-    axes[0].set_ylabel("probability")
+    x = np.arange(len(EMOTIONS))
+    width = 0.27
+    fig, ax = plt.subplots(figsize=(11, 4.5))
+    for i, ((name, p), color) in enumerate(zip(probas.items(), ["#2a78d6", "#eb6834", "#1baf7a"])):
+        pos = x + (i - 1) * width
+        ax.bar(pos, p, width - 0.03, color=color, label=name)
+        for px, v in zip(pos, p):
+            if v >= 0.005:  # skip bars that would read 0%
+                ax.text(px, v + 0.01, f"{v:.0%}", ha="center", va="bottom", fontsize=8)
+    ax.set_xticks(x, EMOTIONS)
+    ax.yaxis.grid(True, linestyle="--", color="lightgray")
+    ax.set_axisbelow(True)
+    ax.set_ylim(0, 1.05)
+    ax.set_ylabel("probability")
+    ax.spines[["top", "right"]].set_visible(False)
+    ax.legend(ncols=3, edgecolor="none", framealpha=1)  # white box hides the grid line
     fig.tight_layout()
     fig.savefig(out_path, dpi=200)
 
