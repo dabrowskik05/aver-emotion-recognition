@@ -10,8 +10,8 @@ VIDEO_MODEL = "checkpoints/video.joblib"
 
 
 def predict(video_path):
-    """Przewidywana emocja dla jednego .mp4."""
-    # Same steps as in extract_features.py, so features match what the models were trained on.
+    """Predicted emotion for a single .mp4 file."""
+    # must match extract_features.py, otherwise the features differ from training
     x_audio = audio_embedding(load_audio(video_path)).reshape(1, -1)
     faces = [crop_face(f) for f in sample_frames(video_path, NUM_FRAMES)]
     x_video = video_embedding(faces).reshape(1, -1)

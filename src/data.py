@@ -45,14 +45,7 @@ def split_by_actor(actors, test_actors):
     return np.where(~is_test)[0], np.where(is_test)[0]
 
 
-# Dataset sanity check.
-#
-# Usage:
-#     python -m src.data
-#
-# Reports the number of audio-visual samples, the per-actor and per-emotion
-# distributions, and the actor-disjoint train/test split. Raises AssertionError
-# if any actor appears in both splits.
+# quick check: python -m src.data (counts per actor/emotion and the train/test split)
 if __name__ == "__main__":
     from collections import Counter
 

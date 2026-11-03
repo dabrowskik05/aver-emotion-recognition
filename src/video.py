@@ -22,7 +22,7 @@ def sample_frames(video_path, num_frames):
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
         raise FileNotFoundError(f"Cannot open video: {video_path}")
-    # Read all frames: CAP_PROP_FRAME_COUNT can be too high for .mp4.
+    # read all frames, CAP_PROP_FRAME_COUNT is not reliable for .mp4
     all_frames = []
     while True:
         ok, frame = cap.read()
@@ -60,12 +60,7 @@ def video_embedding(faces):
     return emb.cpu().numpy()
 
 
-# Video-branch sanity check.
-#
-# Usage:
-#     python -m src.video
-#
-# Saves a frame and a face crop to data/ and checks the embedding shape.
+# quick check: python -m src.video (saves a frame and a face crop to data/)
 if __name__ == "__main__":
     from src.data import list_videos
 

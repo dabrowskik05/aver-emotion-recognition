@@ -15,12 +15,12 @@ MODALITIES = ["audio", "video"]
 
 
 def make_classifier():
-    """Model agreed in the plan: predict_proba columns are 0-7 in EMOTIONS order."""
+    """Scaler + logistic regression; predict_proba columns follow EMOTIONS order."""
     return make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
 
 
 def main():
-    """Trenuje klasyfikatory audio i wideo i ocenia wyniki na aktorach testowych."""
+    """Train audio and video classifiers and evaluate them on the test actors."""
     y = np.load(FEATURES_DIR / "y.npy")
     actors = np.load(FEATURES_DIR / "actors.npy")
     train, test = split_by_actor(actors, TEST_ACTORS)
