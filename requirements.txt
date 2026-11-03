@@ -6,3 +6,4 @@ transformers
 opencv-python==4.14.0.94
 imageio-ffmpeg
 scikit-learn
+matplotlib

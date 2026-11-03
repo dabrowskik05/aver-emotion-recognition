@@ -30,5 +30,7 @@ Paczki `Video_Speech_Actor_XX.zip` z https://zenodo.org/records/1188976 wypakowa
 ```
 python extract_features.py
 python train.py
-python predict.py sciezka/do/nagrania.mp4
+python predict.py sciezka/do/nagrania.mp4 --plot
 ```
+
+`train.py` wypisuje accuracy oraz macro precision, recall i F1 dla audio, wideo i fuzji. `--plot` w `predict.py` zapisuje wykresy prawdopodobieństw z audio, wideo i fuzji jako `<nazwa nagrania>.png`.
