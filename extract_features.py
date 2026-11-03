@@ -22,22 +22,23 @@ def extract_audio(paths):
     np.save(FEATURES_DIR / "X_audio.npy", X_audio)
     print(f"Saved X_audio.npy {X_audio.shape}")
 
+
 def extract_video(paths):
-    """Compute video embeddings and save features/X_video.npy."""
-    embs = []
+    """Compute a ResNet-18 face embedding for every file and save features/X_video.npy."""
+    from src.video import NUM_FRAMES, crop_face, sample_frames, video_embedding  # imported here: loading the model takes a while
+
+    embeddings = []
     for i, path in enumerate(paths, 1):
         frames = sample_frames(path, NUM_FRAMES)
         faces = [crop_face(f) for f in frames]
-        embs.append(video_embedding(faces))
-        if i % 50 == 0 or i == len(paths):
-            print(f"Video: {i}/{len(paths)}")
-    FEATURES_DIR.mkdir(exist_ok=True)
-    X = np.stack(embs)
-    np.save(FEATURES_DIR / "X_video.npy", X)
-    return X
-from src.video import NUM_FRAMES, crop_face, sample_frames, video_embedding
+        embeddings.append(video_embedding(faces))
+        print(f"\r[video] {i}/{len(paths)}", end="", flush=True)
+    print()
 
-FEATURES_DIR = Path("features")
+    X_video = np.stack(embeddings)
+    np.save(FEATURES_DIR / "X_video.npy", X_video)
+    print(f"Saved X_video.npy {X_video.shape}")
+
 
 def main():
     """Compute labels and audio/video embeddings for all files and save them to features/."""

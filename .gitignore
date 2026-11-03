@@ -229,3 +229,5 @@ data/
 checkpoints/
 models/
 .env
+PLAN.md
+ROZBUDOWA.md
