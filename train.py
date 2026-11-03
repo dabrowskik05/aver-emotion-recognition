@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+from sklearn.dummy import DummyClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
 from sklearn.pipeline import make_pipeline
@@ -39,11 +40,20 @@ def main():
     fused = late_fusion(probas["audio"], probas["video"]).argmax(1)
     results["fusion"] = accuracy_score(y[test], fused)
 
+    # Baselines from the data: uniform guessing and always predicting the most frequent training class.
+    baselines = {
+        "random": 1 / len(np.unique(y[train])),
+        "majority": DummyClassifier(strategy="most_frequent")
+        .fit(X[train], y[train]).score(X[test], y[test]),
+    }
+
     print(f"\n{'Model':<8} | Test accuracy")
     print(f"{'-' * 8}-+-{'-' * 13}")
     for name, acc in results.items():
         print(f"{name:<8} | {acc:6.1%}")
-    print("(chance level: 12.5%)")
+    print(f"{'-' * 8}-+-{'-' * 13}")
+    for name, acc in baselines.items():
+        print(f"{name:<8} | {acc:6.1%}")
     print(f"\nSaved models to {CHECKPOINTS_DIR}/")
 
 
