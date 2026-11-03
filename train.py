@@ -1,8 +1,8 @@
 from pathlib import Path
 
 import numpy as np
-from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
@@ -15,8 +15,9 @@ MODALITIES = ["audio", "video"]
 
 
 def make_classifier():
-    """Scaler + logistic regression; predict_proba columns follow EMOTIONS order."""
-    return make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))
+    """Scaler + MLP with one hidden ReLU layer; predict_proba columns follow EMOTIONS order."""
+    mlp = MLPClassifier(hidden_layer_sizes=(256,), alpha=1e-2, max_iter=1000, random_state=0)
+    return make_pipeline(StandardScaler(), mlp)
 
 
 def main():

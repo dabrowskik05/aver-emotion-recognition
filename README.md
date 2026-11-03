@@ -10,7 +10,7 @@ Z każdego nagrania .mp4 liczymy dwa embeddingi gotowymi, zamrożonymi modelami:
 - audio: wav2vec2-base, uśredniony po czasie (768 liczb),
 - wideo: 16 klatek, twarz wycinana detektorem Haar z OpenCV, ResNet-18, uśrednienie po klatkach (512 liczb).
 
-Na każdym embeddingu osobno uczymy regresję logistyczną, a wynik końcowy to średnia prawdopodobieństw z obu modeli. Dane to RAVDESS (8 emocji). Zbiór testowy to osobni aktorzy, którzy nie występują w treningu.
+Na każdym embeddingu osobno uczymy nieliniowy klasyfikator MLP (jedna warstwa ukryta, 256 neuronów, ReLU), a wynik końcowy to średnia prawdopodobieństw z obu modeli. Dane to RAVDESS (8 emocji). Zbiór testowy to osobni aktorzy, którzy nie występują w treningu.
 
 ## Instalacja
 
