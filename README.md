@@ -30,7 +30,16 @@ Paczki `Video_Speech_Actor_XX.zip` z https://zenodo.org/records/1188976 wypakowa
 ```
 python extract_features.py
 python train.py
-python predict.py sciezka/do/nagrania.mp4 --plot
+python predict.py sciezka/do/nagrania.mp4
 ```
 
-`train.py` wypisuje accuracy oraz macro precision, recall i F1 dla audio, wideo i fuzji, a pod spodem dla każdej emocji procent poprawnie rozpoznanych nagrań i to, z czym fuzja myli ją najczęściej. `--plot` w `predict.py` zapisuje wykres prawdopodobieństw z audio, wideo i fuzji jako `<nazwa nagrania>.png`.
+`train.py` wypisuje accuracy i macro F1 dla audio, wideo i fuzji, a pod spodem F1 dla każdej emocji i to, z czym fuzja myli ją najczęściej. `predict.py` wypisuje przewidzianą emocję.
+
+Z flagą `--plot` oba skrypty zapisują wykresy do `plots/`: `train.py` metryki, F1 dla każdej emocji i macierz pomyłek fuzji, a `predict.py` prawdopodobieństwa z audio, wideo i fuzji dla danego nagrania.
+
+## Struktura
+
+- `src/data.py`: nazwy plików RAVDESS, etykiety, podział po aktorach
+- `src/audio.py`, `src/video.py`: wycinanie dźwięku i twarzy, embeddingi
+- `src/classifiers.py`: zapis i wczytywanie modeli, fuzja
+- `src/plots.py`: wykresy

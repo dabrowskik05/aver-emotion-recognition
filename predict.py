@@ -27,38 +27,16 @@ def predict(video_path):
     return EMOTIONS[predict_proba(video_path)["fusion"].argmax()]
 
 
-def plot_proba(probas, out_path, figsize=(11, 4.5)):
-    """Grouped bar chart of emotion probabilities (audio, video, fusion), saved as PNG."""
-    import matplotlib.pyplot as plt
-    import numpy as np
-
-    x = np.arange(len(EMOTIONS))
-    width = 0.27
-    fig, ax = plt.subplots(figsize=figsize)
-    for i, ((name, p), color) in enumerate(zip(probas.items(), ["#2a78d6", "#eb6834", "#1baf7a"])):
-        pos = x + (i - 1) * width
-        ax.bar(pos, p, width - 0.03, color=color, label=name)
-        for px, v in zip(pos, p):
-            if v >= 0.005:  # skip bars that would read 0%
-                ax.text(px, v + 0.01, f"{v:.0%}", ha="center", va="bottom", fontsize=8)
-    ax.set_xticks(x, EMOTIONS)
-    ax.yaxis.grid(True, linestyle="--", color="lightgray")
-    ax.set_axisbelow(True)
-    ax.set_ylim(0, 1.05)
-    ax.set_ylabel("probability")
-    ax.spines[["top", "right"]].set_visible(False)
-    # above the axes, so it never covers a tall bar
-    ax.legend(ncols=3, edgecolor="none", framealpha=1, loc="lower center", bbox_to_anchor=(0.5, 1.0))
-    fig.tight_layout()
-    fig.savefig(out_path, dpi=200)
-
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         sys.exit("Usage: python predict.py <video.mp4> [--plot]")
     probas = predict_proba(sys.argv[1])
     print(EMOTIONS[probas["fusion"].argmax()])
+
     if "--plot" in sys.argv:
-        out_path = Path(sys.argv[1]).stem + ".png"
-        plot_proba(probas, out_path)
-        print(f"Saved {out_path}")
+        from src.plots import PLOTS_DIR, plot_proba
+
+        PLOTS_DIR.mkdir(exist_ok=True)
+        path = PLOTS_DIR / f"{Path(sys.argv[1]).stem}.png"
+        plot_proba(probas, path)
+        print(f"Saved {path}")

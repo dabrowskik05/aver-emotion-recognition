@@ -10,7 +10,8 @@ FEATURES_DIR = Path("features")
 
 def extract_audio(paths):
     """Compute a wav2vec2 embedding for every file and save features/X_audio.npy."""
-    from src.audio import audio_embedding, load_audio  # imported here: loading the model takes a while
+    # imported here: loading the model takes a while
+    from src.audio import audio_embedding, load_audio
 
     embeddings = []
     for i, path in enumerate(paths, 1):
@@ -25,7 +26,8 @@ def extract_audio(paths):
 
 def extract_video(paths):
     """Compute a ResNet-18 face embedding for every file and save features/X_video.npy."""
-    from src.video import NUM_FRAMES, crop_face, sample_frames, video_embedding  # imported here: loading the model takes a while
+    # imported here: loading the model takes a while
+    from src.video import NUM_FRAMES, crop_face, sample_frames, video_embedding
 
     embeddings = []
     for i, path in enumerate(paths, 1):

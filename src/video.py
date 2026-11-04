@@ -5,7 +5,7 @@ from torchvision.models import ResNet18_Weights, resnet18
 
 NUM_FRAMES = 16
 
-# Haar face detector (bundled with OpenCV) and ResNet-18 backbone loaded once.
+# loaded once, when the module is imported
 _face_cascade = cv2.CascadeClassifier(
     cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
 )

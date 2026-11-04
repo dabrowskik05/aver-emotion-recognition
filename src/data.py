@@ -4,10 +4,10 @@ import numpy as np
 
 EMOTIONS = ["neutral", "calm", "happy", "sad", "angry", "fearful", "disgust", "surprised"]
 
-# Test actors: 5 (male) and 6 (female), one person of each sex.
+# actor 5 is male, actor 6 is female
 TEST_ACTORS = [5, 6]
 
-# Fields of a RAVDESS filename, in order, e.g. 01-01-06-01-02-01-12.mp4
+# fields of a RAVDESS filename, e.g. 01-01-06-01-02-01-12.mp4
 FIELDS = ["modality", "vocal_channel", "emotion", "intensity", "statement", "repetition", "actor"]
 
 
@@ -21,7 +21,7 @@ def parse_filename(path):
 
 def list_videos(data_dir):
     """Sorted list of .mp4 files that have both audio and video."""
-    # 01- = audio+video; 02- (video-only) is skipped because it has no sound for the audio branch.
+    # 01- is audio+video, 02- is video only (no sound for the audio model)
     paths = sorted(Path(data_dir).rglob("01-*.mp4"))
     if not paths:
         raise FileNotFoundError(f"No 01-*.mp4 files in {Path(data_dir).resolve()}")
@@ -40,7 +40,7 @@ def parse_actor(path):
 
 def split_by_actor(actors, test_actors):
     """(train, test) indices for an array of actors."""
-    # Each actor goes entirely to train or to test, so the model never sees a known face or voice in testing.
+    # whole actors go to one side, so test faces and voices are never seen in training
     is_test = np.isin(np.asarray(actors), test_actors)
     return np.where(~is_test)[0], np.where(is_test)[0]
 
