@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 import numpy as np
-from sklearn.metrics import accuracy_score, confusion_matrix, precision_recall_fscore_support
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
@@ -43,38 +43,42 @@ def main():
     # baseline: always the most frequent emotion in train
     preds["majority"] = np.full(len(test), np.bincount(y[train]).argmax())
 
+    # accuracy: share of all test recordings guessed right;
+    # macro F1: F1 of every emotion averaged with equal weight, so the smaller neutral class counts as much as the rest
+    labels = range(len(EMOTIONS))
     scores = {}
-    header = f"{'Model':<8} | {'Accuracy':>8} | {'Precision':>9} | {'Recall':>6} | {'F1':>6}"
+    header = f"{'Model':<8} | {'Accuracy':>8} | {'F1':>6}"
     line = "-" * len(header)
     print(f"\n{header}\n{line}")
     for name, pred in preds.items():
         if name == "majority":
             print(line)
-        p, r, f1, _ = precision_recall_fscore_support(y[test], pred, average="macro", zero_division=0)
-        scores[name] = {"Accuracy": accuracy_score(y[test], pred), "Precision": p, "Recall": r, "F1": f1}
-        print(f"{name:<8} | {scores[name]['Accuracy']:>8.1%} | {p:>9.1%} | {r:>6.1%} | {f1:>6.1%}")
+        scores[name] = {"Accuracy": accuracy_score(y[test], pred),
+                        "F1": f1_score(y[test], pred, labels=labels, average="macro", zero_division=0)}
+        print(f"{name:<8} | {scores[name]['Accuracy']:>8.1%} | {scores[name]['F1']:>6.1%}")
     print(f"{'random':<8} | {1 / len(EMOTIONS):>8.1%} |")
-    print("Precision, recall and F1 are macro averages over the 8 emotions.")
+    print("F1 is the macro average over the 8 emotions.")
 
-    # per emotion: % of its test recordings each model got right, hardest for fusion first
-    cms = {m: confusion_matrix(y[test], preds[m], labels=range(len(EMOTIONS))) for m in ["audio", "video", "fusion"]}
-    correct = {m: cm.diagonal() / cm.sum(1) for m, cm in cms.items()}
+    # per emotion: F1 of each model, hardest for fusion first
+    f1 = {m: f1_score(y[test], preds[m], labels=labels, average=None, zero_division=0)
+          for m in ["audio", "video", "fusion"]}
+    cm = confusion_matrix(y[test], preds["fusion"], labels=labels)
     header = f"{'Emotion':<9} | {'audio':>5} | {'video':>5} | {'fusion':>6} | Fusion most often mistakes it for"
-    print(f"\n{header}\n{'-' * len(header)}")
-    for e in np.argsort(correct["fusion"]):
-        row = cms["fusion"][e].copy()
+    print(f"\nF1 per emotion\n{header}\n{'-' * len(header)}")
+    for e in np.argsort(f1["fusion"]):
+        row = cm[e].copy()
         row[e] = 0
         wrong = row.argmax()
-        mistake = f"{EMOTIONS[wrong]} ({row[wrong] / cms['fusion'][e].sum():.0%})" if row.any() else "-"
-        print(f"{EMOTIONS[e]:<9} | {correct['audio'][e]:>5.0%} | {correct['video'][e]:>5.0%} | "
-              f"{correct['fusion'][e]:>6.0%} | {mistake}")
+        mistake = f"{EMOTIONS[wrong]} ({row[wrong] / cm[e].sum():.0%})" if row.any() else "-"
+        print(f"{EMOTIONS[e]:<9} | {f1['audio'][e]:>5.2f} | {f1['video'][e]:>5.2f} | "
+              f"{f1['fusion'][e]:>6.2f} | {mistake}")
     print(f"\nSaved models to {CHECKPOINTS_DIR}/")
 
     if "--plot" in sys.argv:
         PLOTS_DIR.mkdir(exist_ok=True)
         plot_metrics({m: scores[m] for m in ["audio", "video", "fusion"]}, PLOTS_DIR / "metrics.png")
-        plot_per_emotion(correct, PLOTS_DIR / "per_emotion.png")
-        plot_confusion(cms["fusion"], PLOTS_DIR / "confusion_fusion.png")
+        plot_per_emotion(f1, PLOTS_DIR / "per_emotion.png")
+        plot_confusion(cm, PLOTS_DIR / "confusion_fusion.png")
         print(f"Saved plots to {PLOTS_DIR}/")
 
 
@@ -101,7 +105,7 @@ def _grouped_bars(ax, labels, values_by_model, fmt, vertical_values=False):
 
 
 def plot_metrics(scores, out_path):
-    """Accuracy and macro precision/recall/F1 of every model on the test set, saved as PNG."""
+    """Accuracy and macro F1 of every model on the test set, saved as PNG."""
     import matplotlib.pyplot as plt
 
     names = list(next(iter(scores.values())))
@@ -116,15 +120,14 @@ def plot_metrics(scores, out_path):
     plt.close(fig)
 
 
-def plot_per_emotion(correct, out_path):
-    """Share of test recordings of every emotion recognised correctly by each model, saved as PNG."""
+def plot_per_emotion(f1, out_path):
+    """F1 of every emotion for each model on the test set, saved as PNG."""
     import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(8.4, 5.2))
-    _grouped_bars(ax, EMOTIONS, correct, lambda v: f"{v:.0%}", vertical_values=True)
+    _grouped_bars(ax, EMOTIONS, f1, lambda v: f"{v:.2f}", vertical_values=True)
     ax.set_ylim(0, 1.2)
-    ax.yaxis.set_major_formatter(plt.matplotlib.ticker.PercentFormatter(1.0))
-    ax.set_ylabel("recordings recognised correctly")
+    ax.set_ylabel("F1")
     _style(ax)
     fig.tight_layout()
     fig.savefig(out_path, dpi=200)
